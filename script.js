@@ -16,6 +16,8 @@ let isEraseMode = false;
 let isDrawing = false;
 // 网格大小
 let gridSize = 15;
+// 历史记录（撤销）
+let undoStack = [];
 
 // DOM元素
 const colorGrid = document.getElementById('colorGrid');
@@ -25,6 +27,7 @@ const gridSizeSelect = document.getElementById('gridSize');
 const clearBtn = document.getElementById('clearBtn');
 const fillBtn = document.getElementById('fillBtn');
 const eraseBtn = document.getElementById('eraseBtn');
+const undoBtn = document.getElementById('undoBtn');
 
 // 初始化颜色选择区
 function initColorGrid() {
@@ -105,18 +108,68 @@ function generatePixelGrid(size) {
     }
 }
 
-// 根据背景色返回对比色（黑或白），保证数字可见
-function getContrastColor(hexColor) {
-    const hex = hexColor.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
+// 根据背景色返回对比色（黑或白），保证数字可见（支持 hex 和 rgb 格式）
+function getContrastColor(color) {
+    let r, g, b;
+    if (color.startsWith('#')) {
+        const hex = color.replace('#', '');
+        r = parseInt(hex.substr(0, 2), 16);
+        g = parseInt(hex.substr(2, 2), 16);
+        b = parseInt(hex.substr(4, 2), 16);
+    } else {
+        const m = color.match(/\d+/g);
+        if (!m) return '#000000';
+        r = +m[0]; g = +m[1]; b = +m[2];
+    }
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
     return brightness > 128 ? '#000000' : '#FFFFFF';
 }
 
+// 判断是否为白色/空背景
+function isBlankColor(bgColor) {
+    return !bgColor || bgColor === 'rgb(255, 255, 255)' || bgColor.toLowerCase() === '#ffffff';
+}
+
+// 统一设置格子背景色并同步数字对比色
+function applyCellColor(cell, bgColor) {
+    cell.style.backgroundColor = bgColor;
+    cell.style.color = isBlankColor(bgColor) ? '#bbb' : getContrastColor(bgColor);
+}
+
+// 获取当前网格颜色快照
+function getSnapshot() {
+    return Array.from(pixelGrid.children).map(cell => cell.style.backgroundColor);
+}
+
+// 从快照恢复网格
+function restoreSnapshot(snapshot) {
+    const cells = pixelGrid.querySelectorAll('.pixel-cell');
+    cells.forEach((cell, i) => {
+        applyCellColor(cell, snapshot[i] || '');
+    });
+}
+
+// 保存当前状态到撤销栈（绘制操作前调用）
+function pushHistory() {
+    undoStack.push(getSnapshot());
+    updateUndoRedoButtons();
+}
+
+// 更新撤销按钮的可用状态
+function updateUndoRedoButtons() {
+    undoBtn.disabled = undoStack.length === 0;
+}
+
+// 撤销
+function undo() {
+    if (undoStack.length === 0) return;
+    restoreSnapshot(undoStack.pop());
+    updateUndoRedoButtons();
+}
+
 // 开始绘制
 function startDrawing(cell) {
+    pushHistory();
     isDrawing = true;
     draw(cell);
 }
@@ -124,10 +177,7 @@ function startDrawing(cell) {
 // 绘制
 function draw(cell) {
     if (isDrawing) {
-        const bgColor = isEraseMode ? '#FFFFFF' : currentColor;
-        cell.style.backgroundColor = bgColor;
-        // 上色时数字用对比色保证可见，擦除时恢复浅灰
-        cell.style.color = isEraseMode ? '#bbb' : getContrastColor(bgColor);
+        applyCellColor(cell, isEraseMode ? '#FFFFFF' : currentColor);
     }
 }
 
@@ -138,21 +188,16 @@ function stopDrawing() {
 
 // 清空画布
 function clearCanvas() {
+    pushHistory();
     const cells = pixelGrid.querySelectorAll('.pixel-cell');
-    cells.forEach(cell => {
-        cell.style.backgroundColor = '#FFFFFF';
-        cell.style.color = '#bbb';
-    });
+    cells.forEach(cell => applyCellColor(cell, '#FFFFFF'));
 }
 
 // 填充全部
 function fillCanvas() {
+    pushHistory();
     const cells = pixelGrid.querySelectorAll('.pixel-cell');
-    const textColor = getContrastColor(currentColor);
-    cells.forEach(cell => {
-        cell.style.backgroundColor = currentColor;
-        cell.style.color = textColor;
-    });
+    cells.forEach(cell => applyCellColor(cell, currentColor));
 }
 
 // 切换橡皮擦模式
@@ -175,6 +220,9 @@ function toggleEraseMode() {
 function onGridSizeChange() {
     gridSize = parseInt(gridSizeSelect.value);
     generatePixelGrid(gridSize);
+    // 网格尺寸变化后历史快照失效，清空历史
+    undoStack = [];
+    updateUndoRedoButtons();
 }
 
 // 窗口大小改变时重新生成网格
@@ -191,8 +239,19 @@ function init() {
     clearBtn.addEventListener('click', clearCanvas);
     fillBtn.addEventListener('click', fillCanvas);
     eraseBtn.addEventListener('click', toggleEraseMode);
+    undoBtn.addEventListener('click', undo);
     gridSizeSelect.addEventListener('change', onGridSizeChange);
     window.addEventListener('resize', onWindowResize);
+
+    // 键盘快捷键：Ctrl+Z 撤销
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            undo();
+        }
+    });
+
+    updateUndoRedoButtons();
     
     // 全局鼠标/触摸事件
     document.addEventListener('mouseup', stopDrawing);
