@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拼豆像素设计工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>拼豆像素设计工具</h1>
+            <p>点击网格上色，支持触摸操作</p>
+        </header>
+
+        <!-- 控制面板 -->
+        <div class="controls">
+            <!-- 颜色选择区 -->
+            <div class="color-panel">
+                <h3>选择颜色</h3>
+                <div class="color-grid" id="colorGrid">
+                    <!-- 颜色块将通过JS生成 -->
+                </div>
+            </div>
+
+            <!-- 当前颜色显示 -->
+            <div class="current-color">
+                <span>当前颜色:</span>
+                <div class="color-preview" id="colorPreview"></div>
+            </div>
+
+            <!-- 网格大小控制 -->
+            <div class="grid-size-control">
+                <h3>网格大小</h3>
+                <select id="gridSize">
+                    <option value="10">10 × 10</option>
+                    <option value="15" selected>15 × 15</option>
+                    <option value="20">20 × 20</option>
+                    <option value="25">25 × 25</option>
+                    <option value="30">30 × 30</option>
+                </select>
+            </div>
+
+            <!-- 功能按钮 -->
+            <div class="actions">
+                <button id="clearBtn" class="btn btn-danger">清空画布</button>
+                <button id="fillBtn" class="btn btn-primary">填充全部</button>
+                <button id="eraseBtn" class="btn btn-secondary">橡皮擦</button>
+            </div>
+        </div>
+
+        <!-- 画布区域 -->
+        <div class="canvas-container">
+            <div class="pixel-grid" id="pixelGrid"></div>
+        </div>
+
+        <!-- 提示信息 -->
+        <footer>
+            <p>💡 提示：点击颜色选择颜色，点击网格上色，拖动可连续绘制</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
