@@ -187,6 +187,12 @@ header p {
     cursor: pointer;
     transition: background-color 0.1s ease;
     border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #bbb;
+    font-weight: 600;
+    user-select: none;
 }
 
 .pixel-cell:hover {

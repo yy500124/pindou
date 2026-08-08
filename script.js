@@ -70,11 +70,16 @@ function generatePixelGrid(size) {
     const containerWidth = Math.min(500, window.innerWidth - 60);
     const cellSize = Math.floor((containerWidth - (size - 1) - 6) / size);
     
+    // 字号根据格子大小自适应
+    const fontSize = Math.max(8, Math.floor(cellSize * 0.4));
+
     for (let i = 0; i < size * size; i++) {
         const cell = document.createElement('div');
         cell.className = 'pixel-cell';
         cell.style.width = `${cellSize}px`;
         cell.style.height = `${cellSize}px`;
+        cell.style.fontSize = `${fontSize}px`;
+        cell.textContent = String(i + 1);
         
         // 绑定事件
         cell.addEventListener('mousedown', () => startDrawing(cell));
@@ -100,6 +105,16 @@ function generatePixelGrid(size) {
     }
 }
 
+// 根据背景色返回对比色（黑或白），保证数字可见
+function getContrastColor(hexColor) {
+    const hex = hexColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 128 ? '#000000' : '#FFFFFF';
+}
+
 // 开始绘制
 function startDrawing(cell) {
     isDrawing = true;
@@ -109,7 +124,10 @@ function startDrawing(cell) {
 // 绘制
 function draw(cell) {
     if (isDrawing) {
-        cell.style.backgroundColor = isEraseMode ? '#FFFFFF' : currentColor;
+        const bgColor = isEraseMode ? '#FFFFFF' : currentColor;
+        cell.style.backgroundColor = bgColor;
+        // 上色时数字用对比色保证可见，擦除时恢复浅灰
+        cell.style.color = isEraseMode ? '#bbb' : getContrastColor(bgColor);
     }
 }
 
@@ -123,14 +141,17 @@ function clearCanvas() {
     const cells = pixelGrid.querySelectorAll('.pixel-cell');
     cells.forEach(cell => {
         cell.style.backgroundColor = '#FFFFFF';
+        cell.style.color = '#bbb';
     });
 }
 
 // 填充全部
 function fillCanvas() {
     const cells = pixelGrid.querySelectorAll('.pixel-cell');
+    const textColor = getContrastColor(currentColor);
     cells.forEach(cell => {
         cell.style.backgroundColor = currentColor;
+        cell.style.color = textColor;
     });
 }
 
