@@ -58,19 +58,27 @@ header p {
 
 .color-grid {
     display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 6px;
-    grid-auto-rows: 28px;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 3px;
+    grid-auto-rows: 22px;
 }
 
 .color-block {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
     cursor: pointer;
-    border: 3px solid transparent;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    font-family: monospace;
+    user-select: none;
+    overflow: hidden;
 }
 
 .color-block:hover {
@@ -80,7 +88,10 @@ header p {
 
 .color-block.selected {
     border-color: #333;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #667eea;
+    transform: scale(1.1);
+    z-index: 1;
+    position: relative;
 }
 
 .current-color {
@@ -172,6 +183,113 @@ header p {
     box-shadow: 0 4px 12px rgba(161, 140, 209, 0.4);
 }
 
+.btn-import {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+.btn-import:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(250, 112, 154, 0.4);
+}
+
+/* 导入模式选择器（与按钮等高，风格统一） */
+.import-mode-select {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.import-mode-select:hover {
+    border-color: #667eea;
+}
+
+.import-mode-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+/* 裁剪导入模态框 */
+.crop-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.crop-modal.active {
+    display: flex;
+}
+
+.crop-modal-content {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.crop-modal-content h3 {
+    color: #333;
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.crop-tip {
+    color: #888;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.crop-stage {
+    position: relative;
+    display: inline-block;
+    margin: 0 auto;
+    max-width: 100%;
+    line-height: 0;
+}
+
+#cropCanvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.crop-overlay {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.crop-box {
+    position: absolute;
+    border: 3px solid #667eea;
+    background: transparent;
+    cursor: move;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.crop-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 18px;
+}
+
 .btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -245,13 +363,14 @@ footer {
     }
 
     .color-grid {
-        grid-template-columns: repeat(10, 1fr);
-        gap: 5px;
+        grid-template-columns: repeat(16, 1fr);
+        gap: 3px;
     }
 
     .color-block {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
+        font-size: 8px;
     }
 
     .actions {
@@ -272,12 +391,13 @@ footer {
 
 @media (max-width: 480px) {
     .color-grid {
-        grid-template-columns: repeat(8, 1fr);
+        grid-template-columns: repeat(12, 1fr);
     }
 
     .color-block {
-        width: 22px;
-        height: 22px;
+        width: 18px;
+        height: 18px;
+        font-size: 7px;
     }
 
     .pixel-cell {

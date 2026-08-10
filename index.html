@@ -47,12 +47,39 @@
                 <button id="clearBtn" class="btn btn-danger">清空画布</button>
                 <button id="fillBtn" class="btn btn-primary">填充全部</button>
                 <button id="eraseBtn" class="btn btn-secondary">橡皮擦</button>
+                <select id="importMode" class="import-mode-select" title="选择导入模式">
+                    <option value="sample">采样导入</option>
+                    <option value="full">全图导入</option>
+                    <option value="crop">裁剪导入</option>
+                </select>
+                <button id="importBtn" class="btn btn-import">📷 导入图片</button>
+                <input type="file" id="imageInput" accept="image/*" style="display:none">
             </div>
         </div>
 
         <!-- 画布区域 -->
         <div class="canvas-container">
             <div class="pixel-grid" id="pixelGrid"></div>
+        </div>
+
+        <!-- 裁剪导入模态框 -->
+        <div class="crop-modal" id="cropModal">
+            <div class="crop-modal-content">
+                <h3>裁剪图片</h3>
+                <p class="crop-tip">拖动方框选择要导入的正方形区域</p>
+                <div class="crop-stage" id="cropStage">
+                    <canvas id="cropCanvas"></canvas>
+                    <div class="crop-overlay" id="cropOverlayTop"></div>
+                    <div class="crop-overlay" id="cropOverlayBottom"></div>
+                    <div class="crop-overlay" id="cropOverlayLeft"></div>
+                    <div class="crop-overlay" id="cropOverlayRight"></div>
+                    <div class="crop-box" id="cropBox"></div>
+                </div>
+                <div class="crop-actions">
+                    <button id="cropCancel" class="btn btn-secondary">取消</button>
+                    <button id="cropConfirm" class="btn btn-primary">确认导入</button>
+                </div>
+            </div>
         </div>
 
         <!-- 提示信息 -->
